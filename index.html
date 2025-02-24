@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 60%;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1e1e1e;
+            border-radius: 40px;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        h2 {
+            color: cyan;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 10px 0;
+            text-align: left;
+            color: #ff9800;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 16px;
+            background: #333;
+            color: white;
+            outline: none;
+        }
+
+        button {
+            background: #00bcd4;
+            color: white;
+            font-size: 18px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #008ba3;
+            cursor: pointer;
+        }
+
+        #resume {
+            width: 80%;
+            padding: 20px;
+            margin: 20px auto;
+            background: white;
+            color: black;
+            position: relative;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .watermark {
+            position: absolute;
+            width: 100%;
+            height: 90%;
+            opacity: 0.1;
+            background: url('https://kbtcoe.org/wp-content/uploads/2024/11/cropped-NEW-KBTCOE-lOGO-1.jpg') center/contain no-repeat;
+        }
+
+        .photo img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        h3 {
+            color: #007bff;
+        }
+
+        #downloadBtn {
+            display: none;
+            background: #4caf50;
+            margin: auto;
+        }
+
+        #downloadBtn:hover {
+            background: #388e3c;
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 5px red, 0 0 10px orange, 0 0 15px yellow;
+            }
+
+            33% {
+                text-shadow: 0 0 5px green, 0 0 10px cyan, 0 0 15px blue;
+            }
+
+            66% {
+                text-shadow: 0 0 5px violet, 0 0 10px purple, 0 0 15px pink;
+            }
+
+            100% {
+                text-shadow: 0 0 5px red, 0 0 10px orange, 0 0 15px yellow;
+            }
+        }
+
+        .glowing-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            animation: glow 2s infinite alternate;
+        }
+
+        .resumeGenLogo {
+            width: 55px;
+            height: 55px;
+
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            border-radius: 60px;
+            border: none;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            padding-left: 5px;
+            padding-top: 5px;
+        }
+
+        @keyframes slideInLeft {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        h2 {
+            animation: slideInLeft 3s ease-out;
+        }
+
+        #resumeForm {
+            padding-left: 15px;
+            padding-right: 40px;
+        }
+
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background: #1e1e1e;
+            color: #ffffff;
+            border-radius: 10px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="glowing-text">Welcome to the Online Resume Generator</h1>
+        <h2>Enter the Required details:- </h2>
+        <form id="resumeForm">
+            <label>Upload Photo: <input type="file" id="photoInput" accept="image/*"></label>
+            <label>Full Name: <input type="text" id="fullName"></label>
+            <label>College Name: <input type="text" id="collegeName"></label>
+            <label>Average CGPA: <input type="number" step="0.1" id="cgpa"></label>
+            <label>Date of Birth: <input type="date" id="dob"></label>
+            <label>LinkedIn Profile: <input type="url" id="linkedin"></label>
+            <label>GitHub Profile: <input type="url" id="github"></label>
+            <label>Projects: <textarea id="projects"></textarea></label>
+            <label>Education: <textarea id="education"></textarea></label>
+            <label>Technical Skills: <textarea id="skills"></textarea></label>
+            <label>Achievements: <textarea id="achievements"></textarea></label>
+            <label>Extra-Curricular Activities: <textarea id="extraCurricular"></textarea></label>
+            <button type="button" onclick="generateResume()">Generate Resume</button>
+        </form>
+    </div>
+
+    <div id="resume" style="display:none;">
+        <div class="watermark"></div>
+        <div class="photo"><img id="photoPreview" src="" alt="Photo"></div>
+        <h2 id="namePreview"></h2>
+        <h3>College</h3>
+        <p id="collegePreview"></p>
+        <h3>Average CGPA</h3>
+        <p id="cgpaPreview"></p>
+        <h3>Date of Birth</h3>
+        <p id="dobPreview"></p>
+        <h3>LinkedIn Profile</h3>
+        <p id="linkedinPreview"></p>
+        <h3>GitHub Profile</h3>
+        <p id="githubPreview"></p>
+        <h3>Projects</h3>
+        <p id="projectsPreview"></p>
+        <h3>Education</h3>
+        <p id="eduPreview"></p>
+        <h3>Technical Skills</h3>
+        <p id="skillsPreview"></p>
+        <h3>Achievements</h3>
+        <p id="achievePreview"></p>
+        <h3>Extra-Curricular Activities</h3>
+        <p id="extraCurricularPreview"></p>
+    </div>
+    <button id="downloadBtn" onclick="downloadPDF()">Download PDF</button>
+
+    <div class="resumeGenLogo">
+        <img src="concept.png" alt="image" width="40px" height="40px">
+    </div>
+
+    <footer>
+        <p class="footer-text">Made With ❤️ in India</p>
+        <p class="footer-text">© 2025 Resume Generator. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function generateResume() {
+            const cgpa = parseFloat(document.getElementById("cgpa").value);
+            
+            if (cgpa < 0 || cgpa > 10 || isNaN(cgpa)) {
+                alert("Please enter a valid CGPA between 0 and 10.");
+                return; 
+            }
+            document.getElementById("namePreview").innerText = document.getElementById("fullName").value;
+            document.getElementById("collegePreview").innerText = document.getElementById("collegeName").value;
+            document.getElementById("cgpaPreview").innerText = document.getElementById("cgpa").value;
+            document.getElementById("dobPreview").innerText = document.getElementById("dob").value;
+            document.getElementById("linkedinPreview").innerText = document.getElementById("linkedin").value;
+            document.getElementById("githubPreview").innerText = document.getElementById("github").value;
+            document.getElementById("projectsPreview").innerText = document.getElementById("projects").value;
+            document.getElementById("eduPreview").innerText = document.getElementById("education").value;
+            document.getElementById("skillsPreview").innerText = document.getElementById("skills").value;
+            document.getElementById("achievePreview").innerText = document.getElementById("achievements").value;
+            document.getElementById("extraCurricularPreview").innerText = document.getElementById("extraCurricular").value;
+
+            const file = document.getElementById("photoInput").files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("photoPreview").src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+
+            document.getElementById("resume").style.display = "block";
+            document.getElementById("downloadBtn").style.display = "block";
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.html(document.getElementById("resume"), {
+                callback: function (pdf) {
+                    pdf.save("Resume.pdf");
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>
